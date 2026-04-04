@@ -17,7 +17,6 @@ void searchFiles(HashTable* ht, const char* query) {
     char queryWords[10][MAX_WORD];
     int queryWordCount = 0;
     
-    // Parse query
     char buffer[256];
     strncpy(buffer, query, 255);
     buffer[255] = '\0';
@@ -45,7 +44,6 @@ void searchFiles(HashTable* ht, const char* query) {
         return;
     }
     
-    // Collect results
     SearchResult results[MAX_FILES];
     for (int i = 0; i < fileCount; i++) {
         results[i].fileIndex = i;
@@ -66,7 +64,6 @@ void searchFiles(HashTable* ht, const char* query) {
         }
     }
     
-    // Display results
     printf("\nSearch results for: \"%s\"\n", query);
     printf("=====================================\n");
     
@@ -76,7 +73,6 @@ void searchFiles(HashTable* ht, const char* query) {
             if (results[i].matchCount == matches) {
                 printf("\n[%d/%d matches] %s\n", matches, queryWordCount, fileList[i]);
                 
-                // Collect unique line numbers
                 int uniqueLines[1000];
                 int uniqueCount = 0;
                 
@@ -98,7 +94,6 @@ void searchFiles(HashTable* ht, const char* query) {
                     }
                 }
                 
-                // Sort line numbers
                 for (int a = 0; a < uniqueCount - 1; a++) {
                     for (int b = a + 1; b < uniqueCount; b++) {
                         if (uniqueLines[a] > uniqueLines[b]) {
@@ -109,7 +104,6 @@ void searchFiles(HashTable* ht, const char* query) {
                     }
                 }
                 
-                // Display lines (limit to first 5)
                 int displayCount = uniqueCount < 5 ? uniqueCount : 5;
                 for (int j = 0; j < displayCount; j++) {
                     char filepath[512];
@@ -117,11 +111,30 @@ void searchFiles(HashTable* ht, const char* query) {
                     char* line = getLineFromFile(filepath, uniqueLines[j]);
                     if (line) {
                         printf("  Line %d: ", uniqueLines[j]);
-                        for (int k = 0; k < queryWordCount; k++) {
-                            highlightWord(line, queryWords[k]);
-                            line = getLineFromFile(filepath, uniqueLines[j]);
+                        for (int pos = 0; line[pos] != '\0'; ) {
+                            int matched = 0;
+                            for (int k = 0; k < queryWordCount; k++) {
+                                int wlen = strlen(queryWords[k]);
+                                int m = 0;
+                                while (m < wlen && tolower(line[pos + m]) == queryWords[k][m]) m++;
+                                if (m == wlen &&
+                                    (pos == 0 || !isalnum(line[pos - 1])) &&
+                                    !isalnum(line[pos + wlen])) {
+                                    printf("\033[1;33m");
+                                    for (int x = 0; x < wlen; x++) printf("%c", line[pos + x]);
+                                    printf("\033[0m");
+                                    pos += wlen;
+                                    matched = 1;
+                                    break;
+                                }
+                            }
+                            if (!matched) {
+                                printf("%c", line[pos]);
+                                pos++;
+                            }
                         }
-                        printf("%s\n", line);
+                        printf("\n");
+                        free(line);
                     }
                 }
                 if (uniqueCount > 5) {
@@ -137,7 +150,6 @@ void searchFiles(HashTable* ht, const char* query) {
         printf("No files found matching the query.\n");
     }
     
-    // Cleanup
     for (int i = 0; i < fileCount; i++) {
         free(results[i].matchingLines);
     }

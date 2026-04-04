@@ -14,8 +14,7 @@ int isTextFile(const char* filename) {
     const char* ext = strrchr(filename, '.');
     if (!ext) return 0;
     
-    const char* textExts[] = {".txt", ".c", ".h", ".cpp", ".java", ".py", 
-                               ".html", ".css", ".js", ".md", ".log", NULL};
+    const char* textExts[] = {".txt", ".c", ".h", ".cpp", ".java", ".py", ".html", ".css", ".js", ".md", ".log", NULL};
     
     for (int i = 0; textExts[i] != NULL; i++) {
         if (strcasecmp(ext, textExts[i]) == 0) return 1;
@@ -58,7 +57,6 @@ void indexFileContent(const char* filepath, int fileIndex, HashTable* ht) {
         }
     }
     
-    // Add last word if exists
     if (wordIndex > 0) {
         word[wordIndex] = '\0';
         if (wordIndex >= 2) {
@@ -72,20 +70,19 @@ void indexFileContent(const char* filepath, int fileIndex, HashTable* ht) {
 char* getLineFromFile(const char* filepath, int lineNumber) {
     FILE* file = fopen(filepath, "r");
     if (!file) return NULL;
-    
-    static char line[MAX_LINE_LENGTH];
+
+    char buffer[MAX_LINE_LENGTH];
     int currentLine = 1;
-    
-    while (fgets(line, sizeof(line), file) != NULL) {
+
+    while (fgets(buffer, sizeof(buffer), file) != NULL) {
         if (currentLine == lineNumber) {
             fclose(file);
-            // Remove trailing newline
-            line[strcspn(line, "\n")] = 0;
-            return line;
+            buffer[strcspn(buffer, "\n")] = 0;
+            return strdup(buffer);  
         }
         currentLine++;
     }
-    
+
     fclose(file);
     return NULL;
 }
