@@ -6,14 +6,20 @@
 #include "wordparser.h"
 #include "search.h"
 
-int main() {
+int main(int argc, char* argv[]) {
     HashTable* ht = createHashTable();
     
     printf("File Content Search System\n");
     printf("==========================\n\n");
-    
-    printf("Reading and indexing files from current directory...\n");
-    readFiles(".", ht);
+
+    const char* dirPath = ".";
+    if (argc > 1) {
+        dirPath = argv[1];
+    }
+
+    printf("Searching in: %s\n\n", dirPath);
+    printf("Reading and indexing files...\n");
+    readFiles(dirPath, ht);
     
     if (fileCount == 0) {
         printf("No text files found to index.\n");
