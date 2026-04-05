@@ -12,6 +12,8 @@ A high-performance command-line file search tool that indexes text files and ena
 - **Line Number Tracking**: Shows exact lines where matches occur
 - **Syntax Highlighting**: Matched keywords highlighted in yellow
 - **Modular Architecture**: Clean, maintainable code structure
+- **Result Count Summary**: Shows total matches and files found
+- **System-Wide Command**: Works from anywhere on your machine
 - **Multiple File Types**: Supports .txt, .c, .h, .cpp, .java, .py, .html, .css, .js, .md, .log
 
 ## 📋 Table of Contents
@@ -39,8 +41,8 @@ A high-performance command-line file search tool that indexes text files and ena
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/file-search-system.git
-cd file-search-system
+git clone https://github.com/raohimanshu99/grep.git
+cd grep
 ```
 
 2. Compile the project:
@@ -48,15 +50,11 @@ cd file-search-system
 make
 ```
 
-3. (Optional) Clean build files:
+3. Install as a system-wide command (one time only):
 ```bash
-make clean
+sudo cp filesearch /usr/local/bin/filesearch
 ```
-
-4. (Optional) Rebuild from scratch:
-```bash
-make rebuild
-```
+After this, `filesearch` works from **anywhere** on your machine — no need to copy the binary into every folder.
 
 ### Manual Compilation
 
@@ -67,21 +65,18 @@ gcc -o filesearch main.c hashtable.c filemanager.c wordparser.c search.c
 
 ## 💻 Usage
 
-1. Run the program:
+1. Run from anywhere by passing the folder path:
 ```bash
-./filesearch
+filesearch ~/Desktop/my-project
 ```
 
-2. The program will automatically index all text files in the current directory.
+2. The program will automatically index all text files in the given folder.
 
 3. Enter search queries when prompted:
-```
-Enter search query (or 'quit' to exit): malloc free
-```
 
-4. View ranked results with highlighted matches and line numbers.
+4. Type `quit` to exit.
 
-5. Type `quit` to exit.
+⚠️ Avoid running on very large directories like your home folder as it may consume too much memory. Always point it to a specific project folder.
 
 ## 🔍 How It Works
 
