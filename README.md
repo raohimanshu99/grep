@@ -15,6 +15,8 @@ A high-performance command-line file search tool that indexes text files and ena
 - **Result Count Summary**: Shows total matches and files found
 - **System-Wide Command**: Works from anywhere on your machine
 - **Multiple File Types**: Supports .txt, .c, .h, .cpp, .java, .py, .html, .css, .js, .md, .log
+- **Recursive Directory Search**: Automatically indexes all files in subdirectories
+- **Large Scale Indexing**: Supports up to 100,000 files across nested folder structures
 
 ## 📋 Table of Contents
 
@@ -63,6 +65,14 @@ If you don't have Make installed:
 gcc -o filesearch main.c hashtable.c filemanager.c wordparser.c search.c
 ```
 
+### Rebuilding After Code Changes
+
+Every time you modify the code, run both commands:
+```bash
+rm -f *.o filesearch && make
+sudo cp filesearch /usr/local/bin/filesearch
+```
+
 ## 💻 Usage
 
 1. Run from anywhere by passing the folder path:
@@ -70,21 +80,28 @@ gcc -o filesearch main.c hashtable.c filemanager.c wordparser.c search.c
 filesearch ~/Desktop/my-project
 ```
 
-2. The program will automatically index all text files in the given folder.
+2. To search across an entire directory tree with nested subfolders:
+```bash
+filesearch ~/Desktop/my-project/data
+```
+The tool will **automatically recurse** into all subdirectories and index every text file it finds.
 
-3. Enter search queries when prompted:
+3. The program will automatically index all text files in the given folder and all its subfolders.
 
-4. Type `quit` to exit.
+4. Enter search queries when prompted.
+
+5. Type `quit` to exit.
 
 ⚠️ Avoid running on very large directories like your home folder as it may consume too much memory. Always point it to a specific project folder.
 
 ## 🔍 How It Works
 
 ### 1. Indexing Phase
-- Reads all text files from the current directory
+- Reads all text files from the given directory **and all subdirectories recursively**
 - Extracts words (2+ characters) from file contents
 - Builds an inverted index using a hash table
 - Maps each unique word to files and line numbers
+- Stores full file paths internally for reading, and relative paths for clean display
 
 ### 2. Hash Table Structure
 - **Size**: 10,007 buckets (prime number for better distribution)
@@ -111,7 +128,7 @@ filesearch ~/Desktop/my-project
 file-search-system/
 ├── main.c              # Entry point and user interface
 ├── hashtable.c/.h      # Hash table implementation
-├── filemanager.c/.h    # File reading and indexing
+├── filemanager.c/.h    # File reading, recursive indexing
 ├── wordparser.c/.h     # Text processing utilities
 ├── search.c/.h         # Search and ranking logic
 ├── Makefile            # Build configuration
@@ -123,7 +140,7 @@ file-search-system/
 | Module | Purpose |
 |--------|---------|
 | **hashtable** | Core data structure, hash function, CRUD operations |
-| **filemanager** | File I/O, content reading, indexing coordination |
+| **filemanager** | File I/O, recursive directory walking, indexing |
 | **wordparser** | Word extraction, text normalization, highlighting |
 | **search** | Query parsing, result ranking, output formatting |
 | **main** | Program flow, user interaction, cleanup |
@@ -135,6 +152,9 @@ HashTable
 └── HashEntry (word → files)
     └── FileNode (file index → lines)
         └── LineNode (line numbers)
+
+fileList[]        → full paths (used for reading file contents)
+fileDisplayList[] → relative paths (used for clean output display)
 ```
 
 ## ⚡ Performance
@@ -151,6 +171,7 @@ HashTable
 - Indexes 100 files (~10MB total) in < 2 seconds
 - Search query response in < 0.1 seconds
 - Memory usage: ~50MB for typical codebases
+- Supports up to **100,000 files** across nested directories
 
 ## 📝 Examples
 
@@ -187,7 +208,18 @@ Search results for: "hash table collision"
   Line 102: Hash tables provide O(1) lookup time
 ```
 
-### Example 3: No Results
+### Example 3: Recursive Directory Search
+```
+filesearch '/path/to/data'
+
+Indexing: comp.graphics/38949.txt
+Indexing: comp.graphics/38791.txt
+Indexing: comp.os.ms-windows.misc/12345.txt
+...
+Indexed 2001 text files.
+```
+
+### Example 4: No Results
 ```
 Enter search query: nonexistent
 
@@ -198,14 +230,13 @@ No files found matching the query.
 
 ## ⚠️ Limitations
 
-- **Fixed Hash Table Size**: Cannot dynamically resize (10,007 buckets)
-- **Single Directory**: Only indexes files in current directory
 - **No Persistence**: Must re-index on every run
 - **No Fuzzy Search**: Exact word matching only
 - **No Phrase Search**: Cannot search for "exact phrases"
 - **Memory Intensive**: Large files consume significant RAM
 - **No Stemming**: "running" won't match "run"
 - **ASCII Only**: Limited Unicode support
+- **Single Level Display**: Results show relative path from root
 
 ## 🚧 Future Enhancements
 
@@ -219,7 +250,6 @@ No files found matching the query.
 7. **Parallel Indexing**: Multi-threading for large directories
 8. **Web Interface**: Browser-based GUI
 9. **Fuzzy Matching**: Handle typos and similar words
-10. **Recursive Directory Search**: Index subdirectories
 
 ### Potential Algorithms
 - **Stemming**: Porter Stemmer algorithm
