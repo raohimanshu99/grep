@@ -17,6 +17,7 @@ A high-performance command-line file search tool that indexes text files and ena
 - **Multiple File Types**: Supports .txt, .c, .h, .cpp, .java, .py, .html, .css, .js, .md, .log
 - **Recursive Directory Search**: Automatically indexes all files in subdirectories
 - **Large Scale Indexing**: Supports up to 100,000 files across nested folder structures
+- **Boolean Search Operators**: Support for AND, OR, NOT queries
 
 ## 📋 Table of Contents
 
@@ -219,7 +220,28 @@ Indexing: comp.os.ms-windows.misc/12345.txt
 Indexed 2001 text files.
 ```
 
-### Example 4: No Results
+### Example 4: Boolean Operators
+```
+Enter search query: hash AND table
+Mode: AND — showing files with ALL keywords
+
+[ALL 2 matched] hashtable.c
+  Line 12: // Hash table with collision resolution
+
+Enter search query: hash OR collision
+Mode: OR — showing files with ANY keyword
+
+[2/2 matched] hashtable.c
+[1/2 matched] main.c
+
+Enter search query: hash NOT collision
+Mode: NOT — excluding files with: collision
+
+[1/1 matches] main.c
+  Line 5: #include "hashtable.h"
+```
+
+### Example 5: No Results
 ```
 Enter search query: nonexistent
 
@@ -245,11 +267,10 @@ No files found matching the query.
 2. **Persistent Storage**: Save index to disk for faster startup
 3. **Dynamic Resizing**: Auto-resize hash table when load factor > 0.75
 4. **TF-IDF Ranking**: Better relevance scoring
-5. **Boolean Operators**: Support AND, OR, NOT queries
-6. **Regex Support**: Pattern matching in searches
-7. **Parallel Indexing**: Multi-threading for large directories
-8. **Web Interface**: Browser-based GUI
-9. **Fuzzy Matching**: Handle typos and similar words
+5. **Regex Support**: Pattern matching in searches
+6. **Parallel Indexing**: Multi-threading for large directories
+7. **Web Interface**: Browser-based GUI
+8. **Fuzzy Matching**: Handle typos and similar words
 
 ### Potential Algorithms
 - **Stemming**: Porter Stemmer algorithm
